@@ -1,0 +1,29 @@
+using ImplicitEgoizem.Models;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+
+namespace ImplicitEgoizem.Controllers
+{
+    public class MainPageController : ApiController
+    {
+        [Route("api/MainPage/{name}")]
+        [HttpGet]       
+        public DataTable GetDataFromWeb(string name)
+        {
+            return DB_Data.GetDataSellers(name);
+        }
+
+        [Route("api/MainPage/{message_type}")]
+        [HttpPut]
+        public void Put(string message_type, [FromBody]DataTable changes_dt)
+        {
+            DB_Data.UpdateTable(changes_dt, message_type);
+        }
+
+    }
+}
