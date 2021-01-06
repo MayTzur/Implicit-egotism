@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <!-- jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- My ajax -->
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <!-- Font Page -->
+    <link href='https://fonts.googleapis.com/css?family=Andika' rel='stylesheet'>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- data table -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+    <style>
+        body {
+            padding: 35px;
+            text-align: center;
+        }
+
+        th {
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        var tbl1;
+        var tbl2;
+        var options = ["", "No Comment", "Yes", "No", "Irrelevant"];
+        var message_type;
+        var counter = 0;
+        var counter2 = 0;
+
+        $(document).ready(function () {
+            ShowData('Form1');
+            $(document).on("click", "#save_btn", SaveTable);
+            $(document).on("click", "#save_btn2", SaveTable2);
+        });
+
+        function redrawTable(tbl, data) {
+            tbl.clear();
+            for (var i = 0; i < data.length; i++) {
+                tbl.row.add(data[i]);
+            }
+            tbl.draw();
+        }
+
+        function SaveTable() {
+            console.log(tbl1);
+            var sellers_arr = [];
+
+            for (var i = 0; i < tbl1.context[0].aoData.length; i++) {
+                sellers_arr[i] = {
+                    'ID': tbl1.context[0].aoData[i]._aData.ID,
+                    'Checked': tbl1.context[0].aoData[i].anCells[5].lastElementChild.checked,
+                    'Discount_Status': tbl1.context[0].aoData[i].anCells[4].lastElementChild.value,
+                    'Name': tbl1.context[0].aoData[i].anCells[6].lastElementChild.value,
+                    'Date': tbl1.context[0].aoData[i].anCells[7].lastElementChild.value,
+                    'Time': tbl1.context[0].aoData[i].anCells[8].lastElementChild.value,
+                    'New_price': tbl1.context[0].aoData[i].anCells[9].lastElementChild.value,
+                }
+            }
+            console.log(sellers_arr);
+            var url = "../api/MainPage/" + message_type;
+
+            console.log(url);
+            console.log(JSON.stringify(sellers_arr));
+
+            ajaxCall("PUT", url, JSON.stringify(sellers_arr), SuccessUpdate, ErrorUpdate);
+        }
+
+        function SaveTable2() {
+            console.log(tbl2);
+            var sellers_arr = [];
+
+            for (var i = 0; i < tbl2.context[0].aoData.length; i++) {
+                sellers_arr[i] = {
+                    'ID': tbl2.context[0].aoData[i]._aData.ID,
+                    'Checked': tbl2.context[0].aoData[i].anCells[5].lastElementChild.checked,
+                    'Discount_Status': tbl2.context[0].aoData[i].anCells[4].lastElementChild.value,
+                    'Date': tbl2.context[0].aoData[i].anCells[6].lastElementChild.value,
+                    'Time': tbl2.context[0].aoData[i].anCells[7].lastElementChild.value,
+                    'New_price': tbl2.context[0].aoData[i].anCells[8].lastElementChild.value,
+                }
+            }
+            console.log(sellers_arr);
+            var url = "../api/MainPage/" + message_type;
+
+            console.log(url);
+            console.log(JSON.stringify(sellers_arr));
+
+            ajaxCall("PUT", url, JSON.stringify(sellers_arr), SuccessUpdate, ErrorUpdate);
+        }
+
+        function SuccessUpdate(d) {
+            swal({
+                title: "Good job!",
+                text: "Your changes have been saved!",
+                icon: "success",
+                button: "Aww yiss!",
+            });
+        }
+
+        function ErrorUpdate(e) {
+            console.log(e);
+            swal({
+                title: "Error!",
+                text: "Your changes have not been saved!",
+                icon: "error",
+                button: "Oh noez!",
+            });
+        }
+
+        function DataSellers_tbl(name) {
+            console.log(name);
+            counter++;
+            ajaxCall("GET", "../api/MainPage/" + name, "", SuccessDataSellers, ErrorDataSellers);
+        }
+
+        function DataSellers_tbl2(name) {
+            console.log(name);
+            counter2++;
+            ajaxCall("GET", "../api/MainPage/" + name, "", SuccessDataSellers2, ErrorDataSellers);
+        }
+
+        function SuccessDataSellers2(data_tbl) {
+            console.log(data_tbl);
+            console.log(message_type);
+
+            if (counter2 != 1) {
+                redrawTable(tbl2, data_tbl);
+            }
+
+            tbl2 = $('#Tbl2').DataTable({
+                data: data_tbl,
+                dom: 'Bfrtip',
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                retrieve: true,
+                columns: [
+                    { data: "Seller_name" },
+                    { data: "Phone_number" },
+                    { data: "Product_description" },
+                    { data: "Original_price" },
+                    {
+                        data: "Discount_without_name",
+                        render: function (d, t, r) {
+                            if (d == '') {
+                                var $select = $("<select></select>", {
+                                    "id": r[0] + "start",
+                                    "value": d
+                                });
+                                $.each(options, function (k, v) {
+                                    var $option = $("<option></option>", {
+                                        "text": v,
+                                        "value": v
+                                    });
+                                    if (d === v) {
+                                        $option.attr("selected", "selected")
+                                    }
+                                    $select.append($option);
+                                });
+                                return $select.prop("outerHTML");
+                            } else {
+                                return '<select><option value ="' + d + '" >' + d + '</option ></select>';
+                            }
+                        }
+                    },
+                    {
+                        data: "Contact_WithoutName",
+                        render: function (data, type, row, meta) {
+                             if (type === 'display') {
+                            if (data == 1) {
+                                return '<input type="checkbox" class="editor-active" checked>';
+                            } else if (data == 0) {
+                                return '<input type="checkbox" class="editor-active">';
+                            }
+                              }
+                              return data;
+                        },
+                        className: "dt-body-center"
+                    },
+                    {
+                        data: "sending_date_without",
+                        render: function (data, type, row, meta) {  
+                            if (data != "") {
+                                return '<input type="date" data-format="{"month":"short","year":"numeric","day":"numeric"} value="'+data+'"">';
+                            } else {
+                                return '<input type="date" data-format="{"month":"short","year":"numeric","day":"numeric"}">';  
+                            }
+                                                    
+                        }
+                    },
+                    {
+                        data: "sending_time_without",
+                        render: function (data, type, row, meta) {
+                            if (data != "") {
+                                return '<input type="time" class="editor-active" value="'+data+'"/>';
+                            } else {
+                                return '<input type="time" class="editor-active"/>';
+                            }                               
+                        }
+                    },
+                    {
+                        data: "New_price_WithoutName",
+                        render: function (data, type, row, meta) {
+                            if (data != null) {
+                                return '<input type="text" class="editor-active" value="' + data + '"/>';
+                            }
+                            return '<input type="text" class="editor-active"/>';
+                        }
+                    }
+                ],
+            });
+
+        }
+
+        function SuccessDataSellers(data_tbl) {
+            console.log(data_tbl);
+            console.log(message_type);
+
+            if (counter != 1) {
+                redrawTable(tbl1, data_tbl);
+            }
+
+            tbl1 = $('#Tbl1').DataTable({
+                data: data_tbl,
+                dom: 'Bfrtip',
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                retrieve: true,
+                columns: [
+                    { data: "Seller_name" },
+                    { data: "Phone_number" },
+                    { data: "Product_description" },
+                    { data: "Original_price" },
+                    {
+                        data: "Discount_with_name",
+                        render: function (d, t, r) {
+                            if (d == '') {
+                                var $select = $("<select></select>", {
+                                    "id": r[0] + "start",
+                                    "value": d
+                                });
+                                $.each(options, function (k, v) {
+                                    var $option = $("<option></option>", {
+                                        "text": v,
+                                        "value": v
+                                    });
+                                    if (d === v) {
+                                        $option.attr("selected", "selected")
+                                    }
+                                    $select.append($option);
+                                });
+                                return $select.prop("outerHTML");
+                            } else{                           
+                                return '<select><option value ="' + d + '" >' + d + '</option ></select>';
+                            }
+                        }
+                    },
+                    {
+                        data: "Contact_WithName",
+                        render: function (data, type, row, meta) {
+                            if (type === 'display') {
+                                if (data == 1) {
+                                    return '<input type="checkbox" class="editor-active" checked>';
+                                } else if (data == 0) {
+                                    return '<input type="checkbox" class="editor-active">';
+                                }
+                            }
+                            return data;
+                        },
+                        className: "dt-body-center"
+                    },
+                    {
+                        data: "Buyer_name",
+                        render: function (data, type, row, meta) {
+                            if (data != null) {
+                                return '<input type="text" class="editor-active" value="'+data+'"/>';
+                            }
+                                return '<input type="text" class="editor-active"/>';
+                        }
+                    },
+                    {
+                        data: "sending_date_with",
+                        render: function (data, type, row, meta) {
+                            if (data != "") {
+                                return '<input type="date" data-format="{"month":"short","year":"numeric","day":"numeric"} value="' + data + '"">';
+                            } else {
+                                return '<input type="date" data-format="{"month":"short","year":"numeric","day":"numeric"}">';
+                            }
+                        }
+                    },
+                    {
+                        data: "sending_time_with",
+                        render: function (data, type, row, meta) {
+                            if (data != "") {
+                                return '<input type="time" class="editor-active" value="' + data + '"/>';
+                            } else {
+                                return '<input type="time" class="editor-active"/>';
+                            } 
+                        }
+                    },
+                    {
+                        data: "New_price_WithName",
+                        render: function (data, type, row, meta) {
+                            if (data != null) {
+                                return '<input type="text" class="editor-active" value="' + data + '"/>';
+                            }
+                            return '<input type="text" class="editor-active"/>';
+                        }
+                    }
+                ],
+            });
+
+        }
+
+
+
+
+        function ErrorDataSellers(e) {
+            console.log(e);
+            swal("Error!", e, "error");
+        }
+
+        function ShowData(id) {
+            if (id == 'Form1') {
+                //$("#title").text("Contact - same name");
+                message_type = "same_name";
+                $("#Form1").show();
+                DataSellers_tbl('same');
+                $("#Results").hide();
+                $("#Form2").hide();
+            } else if (id == 'Form2') {
+                // $("#title").text("Contact - different name");
+                message_type = "different_name";
+                $("#Form2").show();
+                DataSellers_tbl2('different');
+                $("#Results").hide();
+                $("#Form1").hide();
+            } else if (id == 'Results') {
+                $("#Form1").hide();
+                $("#Form2").hide();
+                $("#Results").show();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="tab">
+        <button class="tablinks btn btn-primary" onclick="ShowData('Form1')">Contact - with name</button>
+        <button class="tablinks btn btn-primary" onclick="ShowData('Form2')">Contact - without name</button>
+        <button class="tablinks btn btn-primary" onclick="ShowData('Results')">Results</button>
+    </div>
+
+    <form id="Form1">
+        <h1 id="title">Contact - with name</h1>
+        <table id="Tbl1" class="uk-table uk-table-hover uk-table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Seller name</th>
+                    <th>Phone number</th>
+                    <th>Product description</th>
+                    <th>Original price</th>
+                    <th>Discount?</th>
+                    <th>Message sent?</th>
+                    <th>Buyer name</th>
+                    <th>Date of sending</th>
+                    <th>Sending time</th>
+                    <th>New price With Name</th>
+                </tr>
+            </thead>
+        </table>
+        <div class="col">
+            <button class="tablinks btn btn-primary" type="button" id="save_btn"><b>Save Changes!</b></button>
+        </div>
+    </form>
+
+    <form id="Form2">
+        <h1>Contact - without name</h1>
+        <table id="Tbl2" class="uk-table uk-table-hover uk-table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Seller name</th>
+                    <th>Phone number</th>
+                    <th>Product description</th>
+                    <th>Original price</th>
+                    <th>Discount?</th>
+                    <th>Message sent?</th>
+                    <th>Date of sending</th>
+                    <th>Sending time</th>
+                    <th>New price Without Name</th>
+                </tr>
+            </thead>
+        </table>
+        <div class="col">
+            <button class="tablinks btn btn-primary" type="button" id="save_btn2"><b>Save Changes!</b></button>
+        </div>
+    </form>
+
+    <div id="Results"></div>
+</body>
+</html>
