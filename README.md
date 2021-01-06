@@ -7,7 +7,7 @@ The data is displayed using HTML and JavaScript.
 System functionality is written in C#.
 Communication with SQL Server using by C#.
 
-*Main tools and languages:* C#, HTML, JavaScript, SQL Server, css, bootstrap, ajax, DataTables, JQuery
+**Main tools and languages:** C#, HTML, JavaScript, SQL Server, css, bootstrap, ajax, DataTables, JQuery
 
 
 
