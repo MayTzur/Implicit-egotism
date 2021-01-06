@@ -1,0 +1,124 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.Configuration;
+
+namespace ImplicitEgoizem.Models
+{
+    public class DBServices
+    {
+        string connectionString = "DBConnectionString";
+
+        SqlConnection con = null;
+        SqlDataAdapter adapter;        
+        SqlDataReader reader;
+        SqlCommand cmd;
+
+        public DBServices()
+        {
+
+        }
+
+        //connetion to DB
+        public SqlConnection Connect(string conStr)
+        {
+            string cStr = WebConfigurationManager.ConnectionStrings[conStr].ConnectionString;
+            SqlConnection con = new SqlConnection(cStr);
+            con.Open();
+            return con;
+        }
+
+        //create command
+        private SqlCommand CreateCommand(string cmdStr, SqlConnection con)
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = con;
+            cmd.CommandText = cmdStr;
+            cmd.CommandTimeout = 15;
+            cmd.CommandType = System.Data.CommandType.Text;
+            return cmd;
+        }
+
+        //get data
+        public DataTable GetDataSellers(string name)
+        {
+            string strCmd = "";
+            if (name == "same")
+            {
+                strCmd = @"select ID, Seller_name, Phone_number, Product_description, Original_price,Contact_WithName ,Discount_with_name , Buyer_name, sending_date_with, sending_time_with, New_price_WithName
+                            from Contact_tbl_2020";
+            }
+            else if (name == "different")
+            {
+                strCmd = @"select ID, Seller_name, Phone_number, Product_description, Original_price, Contact_WithoutName, Discount_without_name, sending_date_without, sending_time_without, New_price_WithoutName
+                            from Contact_tbl_2020";
+            }
+            else if (name == "")
+            {
+                strCmd = "select * from Contact_tbl_2020";
+            }
+       
+            try
+            {
+                con = Connect(connectionString);
+                cmd = CreateCommand(strCmd, con);
+                return FillDataSource(cmd);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
+            {
+                if (con != null)
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        //fill data source
+        private DataTable FillDataSource(SqlCommand command)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                adapter = new SqlDataAdapter(command);
+                adapter.Fill(dt);
+                return dt;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public void UpdateTable(DataTable dt)
+        {
+            string strCmd = "select * from Contact_tbl_2020";
+            try
+            {
+                con = Connect(connectionString);
+                cmd = CreateCommand(strCmd, con);
+                adapter = new SqlDataAdapter(cmd);
+                new SqlCommandBuilder(adapter);
+                adapter.Update(dt);
+            }
+            catch (Exception)
+            {
+                throw null;
+            }
+            finally
+            {
+                if (con != null)
+                {
+                    con.Close();
+                }
+            }
+        
+        }
+    }
+}
